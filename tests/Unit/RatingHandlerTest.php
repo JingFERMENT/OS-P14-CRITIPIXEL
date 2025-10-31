@@ -10,104 +10,49 @@ use PHPUnit\Framework\TestCase;
 class RatingHandlerTest extends TestCase
 {
 
-    public function testAverageWithNoReview(): void 
+    private RatingHandler $ratingHandler;
+
+    protected function setUp(): void
     {
-        $ratingHandler = new RatingHandler();
-
-        $videoGame = new VideoGame(); 
-
-        $ratingHandler->calculateAverage($videoGame);
-
-        self::assertSame(null, $videoGame->getAverageRating());
+        $this->ratingHandler = new RatingHandler();
     }
 
-    public function testAverageWithOneReview(): void 
+    /**
+     * @dataProvider provideRatings
+     */
+    public function testCalculateAverageCanHaveRightAverage(array $ratings, ?int $expectedAverage): void
     {
-        $ratingHandler = new RatingHandler();
+        $videoGame = $this->createVideoGame(...$ratings);
 
-        $videoGame = new VideoGame();
-        $review = new Review();
-        $review->setRating(3);
-        $videoGame->addReview($review);
+        $this->ratingHandler->calculateAverage($videoGame);
 
-        $ratingHandler->calculateAverage($videoGame);
-
-        self::assertSame(3, $videoGame->getAverageRating());
+        self::assertSame($expectedAverage, $videoGame->getAverageRating());
     }
 
-    public function testAverageWithTwoReviews(): void 
+
+    public static function provideRatings(): array
     {
-        $ratingHandler = new RatingHandler();
-
-        $videoGame = new VideoGame();
-        $review1 = new Review();
-        $review1->setRating(3);
-        $review2 = new Review();
-        $review2->setRating(5);
-        $videoGame->addReview($review1);
-        $videoGame->addReview($review2);
-
-        $ratingHandler->calculateAverage($videoGame);
-
-        self::assertSame(4, $videoGame->getAverageRating());
+        return [
+            'no review' => [[], null],
+            'one review' => [[4], 4],
+            'two reviews' => [[5, 1], 3],
+            'many reviews' => [[5, 1, 2, 5, 1], 3],
+            'many reviews round up' => [[5, 1, 2, 5, 4], 4],
+            'limit value' => [[0, 5], 3],
+        ];
     }
 
-    public function testAverageWithLotsOfReviews(){
-
-        $ratingHandler = new RatingHandler();
-
-        $videoGame = new VideoGame();
-
-        $review1 = new Review();
-
-        $review1->setRating(3);
-
-        $review2 = new Review();
-
-        $review2->setRating(3); 
-
-        $review3 = new Review();
-
-        $review3->setRating(3); 
-
-        $review4 = new Review();
-
-        $review4->setRating(4); 
-        $videoGame->addReview($review1);
-        $videoGame->addReview($review2);
-        $videoGame->addReview($review3);
-        $videoGame->addReview($review4);
-
-        $ratingHandler->calculateAverage($videoGame);
-
-        self::assertSame(4, $videoGame->getAverageRating());
-    }
-
-
-    public function testAverageWithLotsOfReviewsRoundUp(){
-        $ratingHandler = new RatingHandler();
+    private function createVideoGame(int ...$ratings): VideoGame
+    {
 
         $videoGame = new VideoGame();
 
-        $review1 = new Review();
+        foreach ($ratings as $rating) {
+            $review = new Review();
+            $review->setRating($rating);
+            $videoGame->addReview($review);
+        }
 
-        $review1->setRating(3);
-
-        $review2 = new Review();
-
-        $review2->setRating(3);
-
-        $review3 = new Review();
-
-        $review3->setRating(4);
-
-        $videoGame->addReview($review1);
-        $videoGame->addReview($review2);
-        $videoGame->addReview($review3);
-
-        $ratingHandler->calculateAverage($videoGame);
-
-        self::assertSame(4, $videoGame->getAverageRating());
-
+        return $videoGame;
     }
 }
