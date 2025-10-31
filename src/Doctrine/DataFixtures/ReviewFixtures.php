@@ -28,7 +28,7 @@ final class ReviewFixtures extends Fixture implements DependentFixtureInterface
             for($i=0; $i<5; $i++) {
                 $review = (new Review())
                     ->setComment($this->faker->sentence())
-                    ->setRating(($i % 5) + 1)
+                    ->setRating(rand(1,5))
                     ->setUser($users[array_rand($users)])
                     ->setVideoGame($videoGame);
                 $manager->persist($review);

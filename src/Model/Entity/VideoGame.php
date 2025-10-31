@@ -246,6 +246,11 @@ class VideoGame
         return $this->reviews;
     }
 
+    public function addReview(Review $review):void
+    {
+        $this->reviews->add($review);
+    }
+
     public function hasAlreadyReview(User $user): bool
     {
         return $this->reviews->exists(static fn (int $key, Review $review): bool => $review->getUser() === $user);
