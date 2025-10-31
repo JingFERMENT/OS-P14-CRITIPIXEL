@@ -7,7 +7,7 @@ use App\Model\Entity\VideoGame;
 use App\Rating\RatingHandler;
 use PHPUnit\Framework\TestCase;
 
-class RatingHandlerTest extends TestCase
+class AverageRatingCalculatorTest extends TestCase
 {
 
     private RatingHandler $ratingHandler;
@@ -20,7 +20,7 @@ class RatingHandlerTest extends TestCase
     /**
      * @dataProvider provideRatings
      */
-    public function testCalculateAverageCanHaveRightAverage(array $ratings, ?int $expectedAverage): void
+    public function testCalculateAverageCanReturnCorrectAverage(array $ratings, ?int $expectedAverage): void
     {
         $videoGame = $this->createVideoGame(...$ratings);
 
@@ -28,7 +28,6 @@ class RatingHandlerTest extends TestCase
 
         self::assertSame($expectedAverage, $videoGame->getAverageRating());
     }
-
 
     public static function provideRatings(): array
     {
@@ -44,7 +43,6 @@ class RatingHandlerTest extends TestCase
 
     private function createVideoGame(int ...$ratings): VideoGame
     {
-
         $videoGame = new VideoGame();
 
         foreach ($ratings as $rating) {
@@ -52,7 +50,6 @@ class RatingHandlerTest extends TestCase
             $review->setRating($rating);
             $videoGame->addReview($review);
         }
-
         return $videoGame;
     }
 }
