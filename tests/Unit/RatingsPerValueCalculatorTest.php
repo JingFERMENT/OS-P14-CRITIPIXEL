@@ -11,14 +11,42 @@ class RatingsPerValueCalculatorTest extends TestCase
 {
     private RatingHandler $ratingHandler;
 
-     protected function setUp(): void
+    protected function setUp(): void
     {
         $this->ratingHandler = new RatingHandler();
     }
 
+    /**
+     * create a VideoGame with variable number of ratings
+     */
+    private static function createVideoGame(int ...$ratings): VideoGame
+    {
+
+        $videoGame = new VideoGame();
+
+        foreach ($ratings as $rating) {
+            $review = new Review();
+            $review->setRating($rating);
+            $videoGame->addReview($review);
+        }
+        return $videoGame;
+    }
+
+    public static function provideRatings(): array
+    {
+        return [
+            'rating 1' => [1, 'getNumberOfOne'],
+            'rating 2' => [2, 'getNumberOfTwo'],
+            'rating 3' => [3, 'getNumberOfThree'],
+            'rating 4' => [4, 'getNumberOfFour'],
+            'rating 5' => [5, 'getNumberOfFive']
+        ];
+    }
+
+    /* no review */
     public function testCountRatingsPerValueNoReview(): void
     {
-        $videoGame = new VideoGame();
+        $videoGame = self::createVideoGame();
 
         $this->ratingHandler->countRatingsPerValue($videoGame);
 
@@ -29,52 +57,51 @@ class RatingsPerValueCalculatorTest extends TestCase
         self::assertSame(0, $count->getNumberOfThree());
         self::assertSame(0, $count->getNumberOfFour());
         self::assertSame(0, $count->getNumberOfFive());
-
     }
 
-    public function testCountRatingsPerValueOneReview(){
+     /**
+     * @dataProvider provideRatings
+     */
+    public function testCountRatingsPerValueOneReview(int $rating, string $getter)
+    {
 
-        $videoGame = new VideoGame();
+        $videoGame = self::createVideoGame($rating);
 
         $this->ratingHandler->countRatingsPerValue($videoGame);
 
-        $review = new Review();
-
-        $review->setRating(2);
-        $videoGame->addReview($review);
-
-        $videoGame->getNumberOfRatingsPerValue()->increaseTwo();
-
         $count = $videoGame->getNumberOfRatingsPerValue();
-        self::assertSame(1, $count->getNumberOfTwo());
 
+        self::assertSame(1, $count->{$getter}());
+
+        $allGetters = [
+            'getNumberOfOne',
+            'getNumberOfTwo',
+            'getNumberOfThree',
+            'getNumberOfFour',
+            'getNumberOfFive'
+        ];
+
+        foreach ($allGetters as $oneGetter) {
+            if ($oneGetter != $getter) {
+                self::assertSame(0, $count->{$oneGetter}());
+            }
+        }
     }
 
+    /* mutiple reviews*/
+    public function testCountRatingsPerValueMultipleReviews():void
+    {
 
-    public function testCountRatingsPerValueMultipleReviews(){
+        $videoGame = self::createVideoGame(1,2,5,4,5);
 
-        $videoGame = new VideoGame();
         $this->ratingHandler->countRatingsPerValue($videoGame);
 
-        $review1 = new Review();
-
-        $review1->setRating(2);
-        $videoGame->addReview($review1);
-
-
-        $review2 = new Review();
-
-        $review2->setRating(5);
-        $videoGame->addReview($review2);
-
-        $videoGame->getNumberOfRatingsPerValue()->increaseTwo();
-        $videoGame->getNumberOfRatingsPerValue()->increaseFive();
-
         $count = $videoGame->getNumberOfRatingsPerValue();
 
+        self::assertSame(1, $count->getNumberOfOne());
         self::assertSame(1, $count->getNumberOfTwo());
-        self::assertSame(1, $count->getNumberOfFive());
-
+        self::assertSame(0, $count->getNumberOfThree());
+        self::assertSame(1, $count->getNumberOfFour());
+        self::assertSame(2, $count->getNumberOfFive());
     }
-    
 }
