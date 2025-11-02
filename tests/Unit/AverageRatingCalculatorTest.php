@@ -5,6 +5,7 @@ namespace App\Tests\Unit;
 use App\Model\Entity\Review;
 use App\Model\Entity\VideoGame;
 use App\Rating\RatingHandler;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class AverageRatingCalculatorTest extends TestCase
@@ -17,9 +18,7 @@ class AverageRatingCalculatorTest extends TestCase
         $this->ratingHandler = new RatingHandler();
     }
 
-    /**
-     * @dataProvider provideRatings
-     */
+    #[DataProvider('provideRatings')]
     public function testCalculateAverageCanReturnCorrectAverage(array $ratings, ?int $expectedAverage): void
     {
         $videoGame = self::createVideoGame(...$ratings);

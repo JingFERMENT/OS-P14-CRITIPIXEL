@@ -5,6 +5,7 @@ namespace App\Tests;
 use App\Model\Entity\Review;
 use App\Model\Entity\VideoGame;
 use App\Rating\RatingHandler;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class RatingsPerValueCalculatorTest extends TestCase
@@ -59,9 +60,7 @@ class RatingsPerValueCalculatorTest extends TestCase
         self::assertSame(0, $count->getNumberOfFive());
     }
 
-     /**
-     * @dataProvider provideRatings
-     */
+    #[DataProvider('provideRatings')]
     public function testCountRatingsPerValueOneReview(int $rating, string $getter)
     {
 
