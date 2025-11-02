@@ -22,7 +22,7 @@ class AverageRatingCalculatorTest extends TestCase
      */
     public function testCalculateAverageCanReturnCorrectAverage(array $ratings, ?int $expectedAverage): void
     {
-        $videoGame = $this->createVideoGame(...$ratings);
+        $videoGame = self::createVideoGame(...$ratings);
 
         $this->ratingHandler->calculateAverage($videoGame);
 
@@ -41,7 +41,7 @@ class AverageRatingCalculatorTest extends TestCase
         ];
     }
 
-    private function createVideoGame(int ...$ratings): VideoGame
+    private static function createVideoGame(int ...$ratings): VideoGame
     {
         $videoGame = new VideoGame();
 
