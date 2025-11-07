@@ -61,6 +61,7 @@ class RatingsPerValueCalculatorTest extends TestCase
     }
 
     #[DataProvider('provideRatings')]
+    /* one review */
     public function testCountRatingsPerValueOneReview(int $rating, string $getter)
     {
 
