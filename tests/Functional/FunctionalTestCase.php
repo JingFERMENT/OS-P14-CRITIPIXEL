@@ -43,7 +43,7 @@ abstract class FunctionalTestCase extends WebTestCase
     protected function login(string $email = 'user+0@email.com'): void
     {
         $user = $this->service(EntityManagerInterface::class)->getRepository(User::class)->findOneByEmail($email);
-
+        self::assertNotNull($user);
         $this->client->loginUser($user);
     }
 }
