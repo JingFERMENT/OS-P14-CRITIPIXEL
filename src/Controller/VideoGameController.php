@@ -35,12 +35,18 @@ final class VideoGameController extends AbstractController
     #[Route('{slug}', name: 'show', methods: [Request::METHOD_GET, Request::METHOD_POST])]
     public function show(VideoGame $videoGame, EntityManagerInterface $entityManager, Request $request): Response
     {
+
+        // Vérifier l'autorisation dès le début du POST
+        if ($request->isMethod('POST')) {
+            $this->denyAccessUnlessGranted('review', $videoGame);
+        }
+
         $review = new Review();
 
         $form = $this->createForm(ReviewType::class, $review)->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->denyAccessUnlessGranted('review', $videoGame);
+            // $this->denyAccessUnlessGranted('review', $videoGame);
             $review->setVideoGame($videoGame);
             $review->setUser($this->getUser());
             $entityManager->persist($review);
@@ -48,6 +54,9 @@ final class VideoGameController extends AbstractController
             return $this->redirectToRoute('video_games_show', ['slug' => $videoGame->getSlug()]);
         }
 
-        return $this->render('views/video_games/show.html.twig', ['video_game' => $videoGame, 'form' => $form]);
+        return $this->render('views/video_games/show.html.twig', ['video_game' => $videoGame, 'form' => $form->createView()]);
     }
+
+
+    
 }
