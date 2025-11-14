@@ -4,13 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\VideoGame;
 
-use App\Model\Entity\User;
 use App\Tests\Functional\FunctionalTestCase;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
-use function PHPUnit\Framework\assertContains;
 
 final class ShowTest extends FunctionalTestCase
 {
@@ -40,6 +36,64 @@ final class ShowTest extends FunctionalTestCase
         self::assertSelectorTextContains('div.list-group-item:last-child h3', 'user+0');
         self::assertSelectorTextContains('div.list-group-item:last-child p', 'Très bon vidéo game !');
         self::assertSelectorTextContains('div.list-group-item:last-child span.value', '5');
+    }
 
+    public function testUserCannotPostReviewWithMissingNote(): void
+    {
+        $this->login('user+0@email.com');
+        $crawler = $this->get('/jeu-video-2');
+        self::assertResponseIsSuccessful();
+
+        // fill out the form
+        $form = $crawler->selectButton('Poster')->form([
+            'review[comment]' => 'Super !',
+        ]);
+
+        $this->client->submit($form);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_OK);
+
+        self::assertSelectorExists('select#review_rating.is-invalid');
+
+        self::assertSelectorTextContains('textarea#review_comment', 'Super !');
+    }
+
+
+    public function testUserCannotPostReviewWithTooLongComments():void
+    {
+        $this->login('user+0@email.com');
+        $crawler = $this->get('/jeu-video-2');
+        self::assertResponseIsSuccessful();
+
+        $tooLongComments = str_repeat('Hello', 600);
+        $form = $crawler->selectButton('Poster')->form([
+            'review[comment]' => $tooLongComments,
+            'review[rating]' => 5,
+        ]);
+
+        $this->client->submit($form);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_OK);
+
+        self::assertSelectorExists('textarea.form-control.is-invalid');
+    }
+
+    public function testGuestCannotSeeOrSubmitReviewForm():void
+    {
+        $this->get('/jeu-video-0');
+
+        // Form pas visible pour un invité
+        self::assertSelectorNotExists('form[name="review"]');
+
+        $this->post('/jeu-video-0', [
+            'review' => [
+                'rating' => 5,
+                'comment' => 'Super !'
+            ]
+        ]);
+
+        // Avec symfony, rediriger les utilisateurs non authentifiés vers /auth/login
+        self::assertResponseStatusCodeSame(Response::HTTP_FOUND);
+        Self::assertResponseRedirects('/auth/login');
     }
 }
