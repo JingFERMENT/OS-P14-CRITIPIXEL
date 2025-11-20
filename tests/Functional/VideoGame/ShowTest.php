@@ -59,7 +59,7 @@ final class ShowTest extends FunctionalTestCase
     }
 
 
-    public function testUserCannotPostReviewWithTooLongComments():void
+    public function testUserCannotPostReviewWithTooLongComments(): void
     {
         $this->login('user+0@email.com');
         $crawler = $this->get('/jeu-video-2');
@@ -78,7 +78,7 @@ final class ShowTest extends FunctionalTestCase
         self::assertSelectorExists('textarea.form-control.is-invalid');
     }
 
-    public function testGuestCannotSeeOrSubmitReviewForm():void
+    public function testGuestCannotSeeOrSubmitReviewForm(): void
     {
         $this->get('/jeu-video-0');
 
@@ -95,5 +95,33 @@ final class ShowTest extends FunctionalTestCase
         // Avec symfony, rediriger les utilisateurs non authentifiés vers /auth/login
         self::assertResponseStatusCodeSame(Response::HTTP_FOUND);
         Self::assertResponseRedirects('/auth/login');
+    }
+
+    public function testUserCannotPostReviewIfAleadyPostedOne()
+    {
+
+        // connecter l'utilisateur
+        $this->login('user+0@email.com');
+
+        // l'utilisateur va sur la page
+        $this->get('/jeu-video-1');
+        self::assertResponseIsSuccessful();
+
+        // Formulaire pas visible pour l'utilisateur déjà posté un review
+        self::assertSelectorNotExists('form[name="review"]');
+
+        // vérifier que le review de l'utilisateur est déjà là.
+        self::assertSelectorTextContains('div.list-group-item:nth-of-type(4) h3', 'user+0');
+        self::assertSelectorTextContains('div.list-group-item:nth-of-type(4) p', 'Null');
+        self::assertSelectorTextContains('div.list-group-item:nth-of-type(4) span.value', '2');
+
+        $this->post('/jeu-video-1', [
+            'review' => [
+                'rating' => 5,
+                'comment' => 'Très bien'
+            ]
+        ]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
 }
