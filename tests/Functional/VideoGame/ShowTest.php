@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\VideoGame;
 
+use App\Model\Entity\Review;
+use App\Model\Entity\User;
+use App\Model\Entity\VideoGame;
 use App\Tests\Functional\FunctionalTestCase;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 
@@ -97,23 +101,22 @@ final class ShowTest extends FunctionalTestCase
         Self::assertResponseRedirects('/auth/login');
     }
 
-    public function testUserCannotPostReviewIfAleadyPostedOne()
+    public function testUserCannotPostAReviewIfTheReviewExistsAleady():void
     {
-
         // connecter l'utilisateur
         $this->login('user+0@email.com');
 
         // l'utilisateur va sur la page
-        $this->get('/jeu-video-1');
+        $crawler = $this->get('/jeu-video-1');
         self::assertResponseIsSuccessful();
 
         // Formulaire pas visible pour l'utilisateur déjà posté un review
         self::assertSelectorNotExists('form[name="review"]');
 
         // vérifier que le review de l'utilisateur est déjà là.
-        self::assertSelectorTextContains('div.list-group-item:nth-of-type(4) h3', 'user+0');
-        self::assertSelectorTextContains('div.list-group-item:nth-of-type(4) p', 'Null');
-        self::assertSelectorTextContains('div.list-group-item:nth-of-type(4) span.value', '2');
+        self::assertSelectorTextContains('div.list-group-item:nth-of-type(3) h3', 'user+0');
+        self::assertSelectorTextContains('div.list-group-item:nth-of-type(3) p', 'Null');
+        self::assertSelectorTextContains('div.list-group-item:nth-of-type(3) span.value', '2');
 
         $this->post('/jeu-video-1', [
             'review' => [
@@ -123,5 +126,33 @@ final class ShowTest extends FunctionalTestCase
         ]);
 
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+    }
+
+   public function testUserCanCreateAValidReviewFrom():void
+    { 
+        $videoGame = $this->getEntityManager()->getRepository(VideoGame::class)->findOneBy(['title'=> 'Jeu vidéo 1']);
+
+        $user = $this->getEntityManager()->getRepository(User::class)->findOneBy(['email'=> 'user+1@email.com']);
+
+        $review = (new Review())
+        ->setUser($user)
+        ->setVideoGame($videoGame)
+        ->setRating(5)
+        ->setComment('Génial');
+
+        $videoGame->addReview($review);
+
+         // connecter l'utilisateur
+        $this->login('user+1@email.com');
+
+        // l'utilisateur va sur la page
+        $this->get(sprintf('/%s', $videoGame->getSlug()));
+
+        self::assertResponseIsSuccessful();
+
+        self::assertSelectorNotExists('form[name="review"]');
+        self::assertSelectorTextContains('div.list-group-item:last-child h3', 'user+1');
+        self::assertSelectorTextContains('div.list-group-item:last-child p', 'Génial');
+        self::assertSelectorTextContains('div.list-group-item:last-child span.value', '5');
     }
 }
