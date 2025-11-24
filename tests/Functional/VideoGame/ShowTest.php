@@ -8,7 +8,6 @@ use App\Model\Entity\Review;
 use App\Model\Entity\User;
 use App\Model\Entity\VideoGame;
 use App\Tests\Functional\FunctionalTestCase;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 
