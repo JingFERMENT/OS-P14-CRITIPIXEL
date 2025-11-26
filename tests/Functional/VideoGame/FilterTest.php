@@ -29,6 +29,7 @@ final class FilterTest extends FunctionalTestCase
         self::assertSelectorCount(1, 'article.game-card');
     }
 
+    // test filter by tag
     #[DataProvider('tagFilterProvider')]
     public function testShouldFilterVideoGamesByTag(array $tags, int $expectedCount): void
     {
@@ -40,29 +41,25 @@ final class FilterTest extends FunctionalTestCase
 
         // 2. vérifier le comportement du filtre
         $query = http_build_query([
-            'page'=> 1,
+            'page' => 1,
             'limit'   => 10,
             'sorting' => 'ReleaseDate',
             'direction' => 'Descending',
-            'filter' => 
+            'filter' =>
             [
                 'search' => '',
                 'tags' => array_values($tags)
             ]
         ]);
-       
+
         $this->get("/?$query");
 
         self::assertResponseIsSuccessful();
         self::assertSelectorCount($expectedCount, 'article.game-card');
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
 
-        // 3 - vérifier la pagination et le tri (page/limit/sort/direction)
-        // le nombre affiché doit correspond à ce qui est dans la base des données 
-        // ce sont bien les bonnes vidéo qui sont affichés 
+        // 3 - vérifier la présentation visuelle
 
-        // 4 - vérifier la présentation visuelle
-        
     }
 
     public static function tagFilterProvider(): array
@@ -71,12 +68,77 @@ final class FilterTest extends FunctionalTestCase
             'One tag' => [[0 => '211'], 9],
             'Another tag' => [[5 => '216'], 8],
             'several tags' => [[
-                0 =>'211',
-                5 =>'216',
+                0 => '211',
+                5 => '216',
             ], 1],
             'no tag' => [[], 10],
-            'non existent tag' => [[0 =>'210'],10]
+            'non existent tag' => [[0 => '210'], 10]
         ];
     }
- 
+
+    // test filter by sort
+    #[DataProvider('sortingProvider')]
+    public function testShouldSortVideoGames(
+        bool $submit,
+        int $limit,
+        string $sorting,
+        string $direction,
+        string $expectedFirst,
+        string $expectedLast
+    ): void {
+
+        $this->get('/');
+        self::assertResponseIsSuccessful(); // 1 assertion
+
+        if ($submit) {
+            $this->client->submitForm('Trier', [
+                'limit' => $limit,
+                'sorting' => $sorting,
+                'direction' => $direction
+            ], 'GET');
+            self::assertResponseIsSuccessful();
+        }
+
+        self::assertSelectorCount($limit, 'article.game-card'); // 1 assertion
+        self::assertSelectorTextSame('article.game-card:nth-child(1) h5.game-card-title a', $expectedFirst); // 2 assertions
+        self::assertSelectorTextSame('article.game-card:last-child h5.game-card-title a', $expectedLast); // 2 assertions
+
+    }
+
+    public static function sortingProvider(): array
+    {
+        return [
+            'default sorting' => [
+                'submit' => false,
+                'limit' => 10,
+                'sorting' => 'ReleaseDate',
+                'direction' => 'Descending',
+                'expectedFirst' => 'Jeu vidéo 0',
+                'expectedLast' => 'Jeu vidéo 9',
+            ],
+
+            'sorting ascending limit 50' => [
+                'submit' => true,
+                'limit' => 50,
+                'sorting' => 'ReleaseDate',
+                'direction' => 'Ascending',
+                'expectedFirst' => 'Jeu vidéo 0',
+                'expectedLast' => 'Jeu vidéo 49',
+            ],
+
+            'sorting descending by AverageRating limit 25' => [
+                'submit' => true,
+                'limit' => 25,
+                'sorting' => 'AverageRating',
+                'direction' => 'Descending',
+                'expectedFirst' => 'Jeu vidéo 13',
+                'expectedLast' => 'Jeu vidéo 36',
+            ],
+        ];
+    }
+
+    
+
+
+
 }
