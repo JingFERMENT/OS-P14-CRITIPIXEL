@@ -10,7 +10,17 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class FilterTest extends FunctionalTestCase
 {
-    // filter by page / sorting / order 
+    // default sorting 
+    public function testShouldListTenVideoGames(): void
+    {
+        $this->get('/');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorCount(10, 'article.game-card');
+        self::assertSelectorTextSame('article.game-card:nth-child(1) h5.game-card-title a', 'Jeu vidéo 0');
+        self::assertSelectorTextSame('article.game-card:last-child h5.game-card-title a', 'Jeu vidéo 9');
+    }
+
+    // sort videogames
     #[DataProvider('sortingProvider')]
     public function testShouldSortVideoGames(
         bool $shouldSubmitForm,
@@ -37,7 +47,6 @@ final class FilterTest extends FunctionalTestCase
         self::assertSelectorTextSame('article.game-card:last-child h5.game-card-title a', $expectedLast); // 2 assertions
     }
 
-    // dataprovider search
     public static function sortingProvider(): array
     {
         return [
@@ -71,17 +80,7 @@ final class FilterTest extends FunctionalTestCase
         ];
     }
 
-    // default sorting 
-    public function testShouldListTenVideoGames(): void
-    {
-        $this->get('/');
-        self::assertResponseIsSuccessful();
-        self::assertSelectorCount(10, 'article.game-card');
-        self::assertSelectorTextSame('article.game-card:nth-child(1) h5.game-card-title a', 'Jeu vidéo 0');
-        self::assertSelectorTextSame('article.game-card:last-child h5.game-card-title a', 'Jeu vidéo 9');
-    }
-
-    // filter by tag / search 
+    // filter videogames
     #[DataProvider('filterProvider')]
     public function testShouldFilterVideoGames(
         ?string $search,
@@ -96,8 +95,8 @@ final class FilterTest extends FunctionalTestCase
         self::assertSelectorExists('form[name="filter"]');
         self::assertSelectorExists('input[name="filter[tags][]"]');
         self::assertSelectorExists('input[name="filter[search]"]');
-        
-        // 2. vérifier le comportement du filtre
+
+        // 2. make the query
         $query = http_build_query([
             'page' => 1,
             'limit'   => 10,
@@ -116,17 +115,17 @@ final class FilterTest extends FunctionalTestCase
         self::assertSelectorCount($expectedCount, 'article.game-card');
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
 
-        // 3 - vérifier la présentation visuelle
-        if ($expectedCount > 0 && $expectedFirstVideoGame != null) {
+        // 3 - check the page 
+        if ($expectedCount > 0 && $expectedFirstVideoGame != null && $expectedLastVideoGame != null) {
             self::assertSelectorTextSame('article.game-card:nth-child(1) h5.game-card-title a', $expectedFirstVideoGame);
             self::assertSelectorTextSame('article.game-card:last-child h5.game-card-title a', $expectedLastVideoGame);
         }
     }
 
-    // dataprovider tag / search
     public static function filterProvider(): array
     {
         return [
+            // ------------------ TAG FILTERS --------------------
             'One tag' => [
                 'search' => '',
                 'tags' => [211],
@@ -162,6 +161,8 @@ final class FilterTest extends FunctionalTestCase
                 'Jeu vidéo 0',
                 'Jeu vidéo 9'
             ],
+
+            // ------------------ SEARCH FILTERS --------------------
             'Exact search Jing' => [
                 'search' => 'Jing',
                 'tags' => [],
@@ -189,6 +190,14 @@ final class FilterTest extends FunctionalTestCase
                 10,
                 'Jeu vidéo 0',
                 'Jeu vidéo 9'
+            ],
+            // ------------------ SEARCH AND TAG FILTERS --------------------
+            'Tag and Search filters' => [
+                'search' => 'Jing',
+                'tags' => [212],
+                1,
+                'Jeu vidéo 0',
+                null
             ],
         ];
     }
