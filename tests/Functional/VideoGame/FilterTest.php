@@ -12,7 +12,7 @@ final class FilterTest extends FunctionalTestCase
 {
     // filter by page / sorting / order 
     #[DataProvider('sortingProvider')]
-    public function testShouldFilterVideoGames(
+    public function testShouldSortVideoGames(
         bool $shouldSubmitForm,
         int $limit,
         string $sorting,
@@ -81,71 +81,13 @@ final class FilterTest extends FunctionalTestCase
         self::assertSelectorTextSame('article.game-card:last-child h5.game-card-title a', 'Jeu vidéo 9');
     }
 
-    // filter by search
-    #[DataProvider('searchFilterProvide')]
-    public function testShouldFilterVideoGamesBySearch(
-        array $formData,
-        int $expectedCount,
-        ?string $expectedFirstTitle,
-        ?string $expectedLastTitle
-    ): void {
-        $this->get('/');
-        self::assertResponseIsSuccessful();
-        self::assertSelectorExists('form[name="filter"]');
-        self::assertSelectorExists('input[name="filter[tags][]"]');
-        $this->client->submitForm('Filtrer', $formData, 'GET');
-        self::assertResponseIsSuccessful();
-        self::assertSelectorCount($expectedCount, 'article.game-card');
-
-        if ($expectedCount > 0 && $expectedFirstTitle != null) {
-            self::assertSelectorTextSame(
-                'article.game-card:nth-child(1) h5.game-card-title a',
-                $expectedFirstTitle
-            );
-            self::assertSelectorTextSame(
-                'article.game-card:last-child h5.game-card-title a',
-                $expectedLastTitle
-            );
-        }
-    }
-
-    // dataprovider tag
-    public static function searchFilterProvide(): array
-    {
-        return [
-            'Exact search Jing' => [
-                ['filter[search]' => 'Jing'],
-                2,
-                'Jeu vidéo 0',
-                'Jeu vidéo 1'
-            ],
-            'Case-insensitive search jing' => [
-                ['filter[search]' => 'jing'],
-                0,
-                null,
-                null
-            ],
-            'No result search' => [
-                ['filter[search]' => 'Hello'],
-                0,
-                null,
-                null
-            ],
-            'Empty Search returns all' => [
-                ['filter[search]' => ''],
-                10,
-                'Jeu vidéo 0',
-                'Jeu vidéo 9'
-            ],
-        ];
-    }
-
-    // filter by tag
-    #[DataProvider('tagFilterProvider')]
-    public function testShouldFilterVideoGamesByTag(
+    // filter by tag / search 
+    #[DataProvider('filterProvider')]
+    public function testShouldFilterVideoGames(
+        ?string $search,
         array $tags,
         int $expectedCount,
-        string $expectedFirstVideoGame,
+        ?string $expectedFirstVideoGame,
         ?string $expectedLastVideoGame
     ): void {
         $this->get('/');
@@ -153,7 +95,8 @@ final class FilterTest extends FunctionalTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('form[name="filter"]');
         self::assertSelectorExists('input[name="filter[tags][]"]');
-
+        self::assertSelectorExists('input[name="filter[search]"]');
+        
         // 2. vérifier le comportement du filtre
         $query = http_build_query([
             'page' => 1,
@@ -162,7 +105,7 @@ final class FilterTest extends FunctionalTestCase
             'direction' => 'Descending',
             'filter' =>
             [
-                'search' => '',
+                'search' => $search,
                 'tags' => array_values($tags)
             ]
         ]);
@@ -174,53 +117,79 @@ final class FilterTest extends FunctionalTestCase
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
 
         // 3 - vérifier la présentation visuelle
-        self::assertSelectorTextSame('article.game-card:nth-child(1) h5.game-card-title a', $expectedFirstVideoGame);
-        self::assertSelectorTextSame('article.game-card:last-child h5.game-card-title a', $expectedLastVideoGame);
+        if ($expectedCount > 0 && $expectedFirstVideoGame != null) {
+            self::assertSelectorTextSame('article.game-card:nth-child(1) h5.game-card-title a', $expectedFirstVideoGame);
+            self::assertSelectorTextSame('article.game-card:last-child h5.game-card-title a', $expectedLastVideoGame);
+        }
     }
 
-    // dataprovider tag
-    public static function tagFilterProvider(): array
+    // dataprovider tag / search
+    public static function filterProvider(): array
     {
         return [
             'One tag' => [
-                [
-                    0 => '211'
-                ],
+                'search' => '',
+                'tags' => [211],
                 9,
                 'Jeu vidéo 12',
                 'Jeu vidéo 34'
             ],
             'Another tag' => [
-                [
-                    5 => '216'
-                ],
+                'search' => '',
+                'tags' => [216],
                 8,
                 'Jeu vidéo 1',
                 'Jeu vidéo 24'
             ],
             'several tags' => [
-                [
-                    0 => '211',
-                    3 => '214'
-                ],
+                'search' => '',
+                'tags' => [211, 214],
                 3,
                 'Jeu vidéo 25',
                 'Jeu vidéo 28',
             ],
             'no tag' => [
-                [],
+                'search' => '',
+                'tags' => [],
                 10,
                 'Jeu vidéo 0',
                 'Jeu vidéo 9'
             ],
             'non existent tag' => [
-                [
-                    0 => '210'
-                ],
+                'search' => '',
+                'tags' => [210],
                 10,
                 'Jeu vidéo 0',
                 'Jeu vidéo 9'
-            ]
+            ],
+            'Exact search Jing' => [
+                'search' => 'Jing',
+                'tags' => [],
+                2,
+                'Jeu vidéo 0',
+                'Jeu vidéo 1'
+            ],
+            'Case-insensitive search jing' => [
+                'search' => 'jing',
+                'tags' => [],
+                0,
+                null,
+                null
+            ],
+            'No result search' => [
+                'search' => 'hello',
+                'tags' => [],
+                0,
+                null,
+                null
+            ],
+            'Empty Search returns all' => [
+                'search' => '',
+                'tags' => [],
+                10,
+                'Jeu vidéo 0',
+                'Jeu vidéo 9'
+            ],
         ];
     }
 }
