@@ -11,7 +11,8 @@ use Symfony\Component\HttpFoundation\Response;
 final class FilterTest extends FunctionalTestCase
 {
     // prepare the different scenarios for data provider:
-    private static function prepareUseCases(
+
+    private static function prepareUseCases( // @phpstan-ignore-line
         array $query = [],
         int $expectedCount = 10,
         int $expectedOffsetFrom = 1,
@@ -21,7 +22,7 @@ final class FilterTest extends FunctionalTestCase
         ?array $expectedPaginationLinks = null,
         ?array $expectedVideoGames = null
     ): array {
-        if ($expectedCurrentPageNumber != null) {
+        if ($expectedCurrentPageNumber !== null) {
             // set to the default pagination links
             $expectedPaginationLinks = $expectedPaginationLinks ?? ['1', '2', '3', '4'];
         }
@@ -34,9 +35,9 @@ final class FilterTest extends FunctionalTestCase
         // add 'Suivant', 'Dernière page' in the links
         $lastPage = ceil($expectedTotal / $expectedCount);
         if ($expectedCurrentPageNumber < $lastPage) {
-                $expectedPaginationLinks = array_merge($expectedPaginationLinks, ['Suivant', 'Dernière page']);
+            $expectedPaginationLinks = array_merge($expectedPaginationLinks, ['Suivant', 'Dernière page']);
         }
-        
+
         return [
             'query' => $query,
             'expectedCount' => $expectedCount,
@@ -54,7 +55,7 @@ final class FilterTest extends FunctionalTestCase
     }
 
     // functional test for all (filter, sorting etc )
-    public static function providerUserCases(): iterable
+    public static function providerUserCases(): iterable // @phpstan-ignore-line
     {
 
         yield 'First Default Page' => self::prepareUseCases();
@@ -155,7 +156,7 @@ final class FilterTest extends FunctionalTestCase
             ]
         );
 
-         // ------------------ TEST SEARCH FILTERS --------------------
+        // ------------------ TEST SEARCH FILTERS --------------------
         yield 'First Page, filter by Search' => self::prepareUseCases(
             query: ['filter' => ['search' => 'Jing']],
             expectedCount: 2,
@@ -170,7 +171,7 @@ final class FilterTest extends FunctionalTestCase
         );
 
         // ------------------ TEST TAG FILTERS --------------------
-         yield 'First Page, filter by one tag' => self::prepareUseCases(
+        yield 'First Page, filter by one tag' => self::prepareUseCases(
             query: ['filter' => ['tags' => ['211']]],
             expectedCount: 9,
             expectedOffsetTo: 9,
@@ -206,7 +207,7 @@ final class FilterTest extends FunctionalTestCase
 
         // ------------------ TEST TAG AND SEARCH FILTERS --------------------
         yield 'First Page, filter by search and tag' => self::prepareUseCases(
-            query: ['filter' => ['tags' => ['212'], 'search' => 'Jing' ]],
+            query: ['filter' => ['tags' => ['212'], 'search' => 'Jing']],
             expectedCount: 1,
             expectedOffsetTo: 1,
             expectedTotal: 1,
@@ -216,10 +217,14 @@ final class FilterTest extends FunctionalTestCase
             ],
             expectedPaginationLinks: []
         );
-
     }
 
-    #[DataProvider('providerUserCases')]
+    /**
+     * @param array<int, int> $expectedPaginationLinks,
+     * @param array<int, string>|null $expectedVideoGames,
+     * @param array<string, mixed> $query
+     */
+    #[DataProvider('providerUserCases')] 
     public function testShouldShowVideoGamesByUsercases(
         array $query,
         int $expectedCount,
@@ -233,7 +238,7 @@ final class FilterTest extends FunctionalTestCase
         $this->get('/', $query);
         // check the query 
         self::assertResponseIsSuccessful();
-      
+
         // check the videogame number
         self::assertSelectorCount($expectedCount, 'article.game-card');
 
@@ -256,24 +261,30 @@ final class FilterTest extends FunctionalTestCase
             self::assertSelectorCount(count($expectedPaginationLinks), 'li.page-item');
 
             foreach ($expectedPaginationLinks as $expectedPaginationLink) {
-                self::assertSelectorExists('li.page-item .page-link', $expectedPaginationLink);
+                self::assertSelectorExists('li.page-item .page-link', (string)$expectedPaginationLink);
             }
         }
 
 
         // check the videogames titles
-            foreach ($expectedVideoGames as $index => $expectedVideoGame) {
-                $number = $index + 1;
-                self::assertSelectorTextSame(
-                    "article.game-card:nth-child($number) h5.game-card-title a",
-                    $expectedVideoGame
-                );
-            }
-        
+        foreach ($expectedVideoGames as $index => $expectedVideoGame) {
+            $number = $index + 1;
+            self::assertSelectorTextSame(
+                "article.game-card:nth-child($number) h5.game-card-title a",
+                $expectedVideoGame
+            );
+        }
     }
 
-    // unit test for filtering videogames
-    #[DataProvider('filterProvider')]
+    // unit test for filtering videogames 
+    /**
+     * @param string|null $search
+     * @param int[] $tags
+     * @param int $expectedCount
+     * @param string|null $expectedFirstVideoGame
+     * @param string|null $expectedLastVideoGame
+     */
+    #[DataProvider('filterProvider')] 
     public function testShouldFilterVideoGames(
         ?string $search,
         array $tags,
@@ -308,88 +319,97 @@ final class FilterTest extends FunctionalTestCase
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
 
         // 3 - check the page 
-        if ($expectedCount > 0 && $expectedFirstVideoGame != null && $expectedLastVideoGame != null) {
+        if ($expectedCount > 0 && $expectedFirstVideoGame !== null && $expectedLastVideoGame !== null) {
             self::assertSelectorTextSame('article.game-card:nth-child(1) h5.game-card-title a', $expectedFirstVideoGame);
             self::assertSelectorTextSame('article.game-card:last-child h5.game-card-title a', $expectedLastVideoGame);
         }
     }
 
+    /**
+     * @return array<array{
+     *      search: string, 
+     *      tags: int[], 
+     *      expectedCount:  int,         
+     *      expectedFirstVideoGame:  string|null,    
+     *      expectedLastVideoGame:  string|null    
+     *} >   
+     */
     public static function filterProvider(): array
     {
         return [
             // ------------------ TAG FILTERS --------------------
-            'One tag' => [
+            [ // one tag
                 'search' => '',
                 'tags' => [211],
-                9,
-                'Jeu vidéo 12',
-                'Jeu vidéo 34'
+                'expectedCount' => 9,
+                'expectedFirstVideoGame' => 'Jeu vidéo 12',
+                'expectedLastVideoGame' => 'Jeu vidéo 34'
             ],
-            'Another tag' => [
+            [ // another tag
                 'search' => '',
                 'tags' => [216],
-                8,
-                'Jeu vidéo 1',
-                'Jeu vidéo 24'
+                'expectedCount' => 8,
+                'expectedFirstVideoGame' => 'Jeu vidéo 1',
+                'expectedLastVideoGame' => 'Jeu vidéo 24'
             ],
-            'several tags' => [
+            [ //several tags
                 'search' => '',
                 'tags' => [211, 214],
-                3,
-                'Jeu vidéo 25',
-                'Jeu vidéo 28',
+                'expectedCount' => 3,
+                'expectedFirstVideoGame' => 'Jeu vidéo 25',
+                'expectedLastVideoGame' => 'Jeu vidéo 28',
             ],
-            'no tag' => [
+            [ //'no tag' 
                 'search' => '',
                 'tags' => [],
-                10,
-                'Jeu vidéo 0',
-                'Jeu vidéo 9'
+                'expectedCount' => 10,
+                'expectedFirstVideoGame' => 'Jeu vidéo 0',
+                'expectedLastVideoGame' => 'Jeu vidéo 9'
             ],
-            'non existent tag' => [
+            [ //'non existent tag'
                 'search' => '',
                 'tags' => [210],
-                10,
-                'Jeu vidéo 0',
-                'Jeu vidéo 9'
+                'expectedCount' => 10,
+                'expectedFirstVideoGame' => 'Jeu vidéo 0',
+                'expectedLastVideoGame' => 'Jeu vidéo 9'
             ],
 
             // ------------------ SEARCH FILTERS --------------------
-            'Exact search Jing' => [
+            [ // Exact search Jing'
                 'search' => 'Jing',
                 'tags' => [],
-                2,
-                'Jeu vidéo 0',
-                'Jeu vidéo 1'
+                'expectedCount' => 2,
+                'expectedFirstVideoGame' => 'Jeu vidéo 0',
+                'expectedLastVideoGame' => 'Jeu vidéo 1'
             ],
-            'Case-insensitive search jing' => [
+            [ //'Case-insensitive search jing'
                 'search' => 'jing',
                 'tags' => [],
-                0,
-                null,
-                null
+                'expectedCount' => 0,
+                'expectedFirstVideoGame' => null,
+                'expectedLastVideoGame' => null
             ],
-            'No result search' => [
+            [ //'No result search' 
                 'search' => 'hello',
                 'tags' => [],
-                0,
-                null,
-                null
+                'expectedCount' => 0,
+                'expectedFirstVideoGame' => null,
+                'expectedLastVideoGame' => null
             ],
-            'Empty Search returns all' => [
+            [ //'Empty Search returns all' 
                 'search' => '',
                 'tags' => [],
-                10,
-                'Jeu vidéo 0',
-                'Jeu vidéo 9'
+                'expectedCount' => 10,
+                'expectedFirstVideoGame' => 'Jeu vidéo 0',
+                'expectedLastVideoGame' => 'Jeu vidéo 9'
             ],
             // ------------------ SEARCH AND TAG FILTERS --------------------
-            'Tag and Search filters' => [
+            [ //'Tag and Search filters' 
                 'search' => 'Jing',
                 'tags' => [212],
-                1,
-                'Jeu vidéo 0',
-                null
+                'expectedCount' => 1,
+                'expectedFirstVideoGame' => 'Jeu vidéo 0',
+                'expectedLastVideoGame' => null
             ],
         ];
     }
@@ -421,6 +441,16 @@ final class FilterTest extends FunctionalTestCase
         self::assertSelectorTextSame('article.game-card:last-child h5.game-card-title a', $expectedLast); // 2 assertions
     }
 
+
+    /**
+     * @return array<string, array{
+     * shouldSubmitForm: bool,
+     * limit: int,
+     * sorting: string,
+     * direction: string,
+     * expectedFirst : string,
+     * expectedLast : string}>
+     */
     public static function sortingProvider(): array
     {
         return [

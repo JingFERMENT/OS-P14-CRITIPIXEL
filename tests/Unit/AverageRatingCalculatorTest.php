@@ -18,7 +18,11 @@ class AverageRatingCalculatorTest extends TestCase
         $this->ratingHandler = new RatingHandler();
     }
 
-    #[DataProvider('provideRatings')]
+    #[DataProvider('provideRatings')] // @phpstan-ignore-line
+    /**
+     * @param int[] $ratings
+     * @param int|null $expectedAverage
+     */
     public function testCalculateAverageCanReturnCorrectAverage(array $ratings, ?int $expectedAverage): void
     {
         $videoGame = self::createVideoGame(...$ratings);
@@ -28,6 +32,9 @@ class AverageRatingCalculatorTest extends TestCase
         self::assertSame($expectedAverage, $videoGame->getAverageRating());
     }
 
+    /**
+     * @return array<string, array{int[], int|null}>
+     */
     public static function provideRatings(): array
     {
         return [
