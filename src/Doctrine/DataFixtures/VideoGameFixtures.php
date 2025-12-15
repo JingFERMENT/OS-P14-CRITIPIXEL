@@ -9,20 +9,19 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Generator;
-
+use Faker\Factory;
 
 final class VideoGameFixtures extends Fixture implements DependentFixtureInterface
 {
     public function __construct(
-        private readonly Generator $faker
+        private readonly Generator $faker 
     ) {}
 
     public function load(ObjectManager $manager): void
     {
+        $tags = $manager->getRepository(Tag::class)->findAll();
 
         foreach (range(0, 49) as $index) {
-
-            $tags = $manager->getRepository(Tag::class)->findAll();
 
             $videoGame = (new VideoGame())
                 ->setTitle(sprintf('Jeu vidéo %d', $index))
@@ -39,7 +38,6 @@ final class VideoGameFixtures extends Fixture implements DependentFixtureInterfa
             foreach ($assignedTagsIndex as $oneAssignedTagIndex) {
                 $videoGame->addTag($tags[$oneAssignedTagIndex]);
             }
-
 
             $manager->persist($videoGame);
         }

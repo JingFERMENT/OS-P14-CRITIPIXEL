@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\VideoGame;
 
+use App\Model\Entity\Review;
+use App\Model\Entity\VideoGame;
 use App\Tests\Functional\FunctionalTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,7 +14,7 @@ final class FilterTest extends FunctionalTestCase
 {
     // prepare the different scenarios for data provider:
 
-    private static function prepareUseCases( // @phpstan-ignore-line
+    private static function prepareUseCases( 
         array $query = [],
         int $expectedCount = 10,
         int $expectedOffsetFrom = 1,
@@ -55,7 +57,7 @@ final class FilterTest extends FunctionalTestCase
     }
 
     // functional test for all (filter, sorting etc )
-    public static function providerUserCases(): iterable // @phpstan-ignore-line
+    public static function providerUserCases(): iterable 
     {
 
         yield 'First Default Page' => self::prepareUseCases();
@@ -224,7 +226,7 @@ final class FilterTest extends FunctionalTestCase
      * @param array<int, string>|null $expectedVideoGames,
      * @param array<string, mixed> $query
      */
-    #[DataProvider('providerUserCases')] 
+    #[DataProvider('providerUserCases')]
     public function testShouldShowVideoGamesByUsercases(
         array $query,
         int $expectedCount,
@@ -284,7 +286,7 @@ final class FilterTest extends FunctionalTestCase
      * @param string|null $expectedFirstVideoGame
      * @param string|null $expectedLastVideoGame
      */
-    #[DataProvider('filterProvider')] 
+    #[DataProvider('filterProvider')]
     public function testShouldFilterVideoGames(
         ?string $search,
         array $tags,
@@ -483,4 +485,23 @@ final class FilterTest extends FunctionalTestCase
             ],
         ];
     }
+
+    public function testGetIdReturnsNullByDefault(): void
+    {
+        $review = new Review();
+
+        $this->assertNull($review->getId());
+    }
+
+    public function testGetVideoGame(): void
+    {
+        $videoGame = new VideoGame();
+        $review = new Review();
+
+        $review->setVideoGame($videoGame);
+
+        $this->assertSame($videoGame, $review->getVideoGame());
+    }
+
+    
 }
