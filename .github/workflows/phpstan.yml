@@ -1,0 +1,21 @@
+name: PHPStan
+
+on: [push]
+
+jobs:
+  run-phpstan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup PHP, with composer and extensions
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+          extensions: mbstring, xml, ctype, iconv, intl
+      - name: Start docker with my database
+        run: docker compose up -d
+      - name: Composer install
+        run: composer install
+      - name: Run phpstan
+        run: vendor/bin/phpstan
