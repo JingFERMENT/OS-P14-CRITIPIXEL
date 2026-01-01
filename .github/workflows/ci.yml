@@ -3,7 +3,7 @@ name: CI
 on: 
   pull_request:
   push:
-    branches: [ "main", "github-action" ]
+    branches: [ "main", "my-github-action" ]
   workflow_dispatch:
 
 permissions:
