@@ -72,6 +72,9 @@ jobs:
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
     
+      - name: Warmup Symfony cache (dev)
+        run: php bin/console cache:warmup --env=dev
+
     # 4) PHPStan (rapide, sans DB)
       - name: Run PHPStan
         run: vendor/bin/phpstan analyse -c phpstan.dist.neon --memory-limit=-1
