@@ -25,6 +25,7 @@ final class ShowTest extends FunctionalTestCase
         $this->login('user+0@email.com');
         $crawler = $this->get('/jeu-video-0');
         self::assertResponseIsSuccessful();
+        self::assertSelectorExists('form[name="review"]');
 
         // fill out the form
         $form = $crawler->selectButton('Poster')->form([
