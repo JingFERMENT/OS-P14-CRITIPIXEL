@@ -29,6 +29,8 @@ jobs:
           POSTGRES_DB:  criti-pixel_test
           POSTGRES_USER:  postgres
           POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
         options: >-
           --health-cmd="pg_isready -U postgres -d criti-pixel_test"
           --health-interval=10s
@@ -37,7 +39,7 @@ jobs:
       
     env:
       APP_ENV: test
-      DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/criti-pixel_test?serverVersion=16&charset=utf8"
+      DATABASE_URL: "postgresql://postgres:postgres@127.0.0.1:5433/criti-pixel_test?serverVersion=16&charset=utf8"
 
     steps:
     # 1) Checkout (obligatoire)
@@ -77,11 +79,27 @@ jobs:
       - name: Run PHPStan
         run: vendor/bin/phpstan analyse -c phpstan.dist.neon --memory-limit=-1
     
+      - name: Install psql client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Wait for PostgreSQL
+        run: |
+          for i in {1..30}; do
+            pg_isready -h 127.0.0.1 -p 5432 -U postgres -d criti-pixel_test && exit 0
+            sleep 2
+          done
+          echo "Postgres not ready. Service logs:"
+          docker logs ${{ job.services.postgres.id }}
+          exit 1
+    
     # 5) Migrations Doctrine
       - name: Prepare database (Doctrine)
         run: |
           php bin/console doctrine:migrations:migrate -n --env=test
           php bin/console doctrine:fixtures:load -n --purge-with-truncate --env=test
+    
     
     # 6) Tests PHPUnit (unitaires + fonctionnels)
       - name: PHPUnit
