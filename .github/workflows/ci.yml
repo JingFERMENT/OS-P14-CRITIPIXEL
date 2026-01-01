@@ -30,7 +30,7 @@ jobs:
           POSTGRES_USER:  postgres
           POSTGRES_PASSWORD: postgres
         ports:
-          - 5433:5432
+          - 5432:5432
         options: >-
           --health-cmd="pg_isready -U postgres -d criti-pixel_test"
           --health-interval=10s
@@ -39,7 +39,7 @@ jobs:
       
     env:
       APP_ENV: test
-      DATABASE_URL: "postgresql://postgres:postgres@127.0.0.1:5433/criti-pixel_test?serverVersion=16&charset=utf8"
+      DATABASE_URL: "postgresql://postgres:postgres@127.0.0.1:5432/criti-pixel_test?serverVersion=16&charset=utf8"
 
     steps:
     # 1) Checkout (obligatoire)
