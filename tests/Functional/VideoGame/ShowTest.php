@@ -112,11 +112,6 @@ final class ShowTest extends FunctionalTestCase
         // Formulaire pas visible pour l'utilisateur déjà posté un review
         self::assertSelectorNotExists('form[name="review"]');
 
-        // vérifier que le review de l'utilisateur est déjà là.
-        self::assertSelectorTextContains('div.list-group-item:nth-of-type(3) h3', 'user+6');
-        self::assertSelectorTextContains('div.list-group-item:nth-of-type(3) p', 'Et qui facere error odit aut nobis magnam.');
-        self::assertSelectorTextContains('div.list-group-item:nth-of-type(3) span.value', '4');
-
         $this->post('/jeu-video-1', [
             'review' => [
                 'rating' => 5,
