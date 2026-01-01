@@ -74,7 +74,7 @@ jobs:
     
     # 4) PHPStan (rapide, sans DB)
       - name: Run PHPStan
-        run: vendor/bin/phpstan analyse -c phpstan.neon --memory-limit=-1
+        run: vendor/bin/phpstan analyse -c phpstan.dist.neon --memory-limit=-1
     
     # 5) Migrations Doctrine
       - name: Prepare database (Doctrine)
