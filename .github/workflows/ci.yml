@@ -39,7 +39,7 @@ jobs:
       
     env:
       APP_ENV: test
-      DATABASE_URL: "postgresql://postgres:postgres@127.0.0.1:5432/criti-pixel_test?serverVersion=16&charset=utf8"
+      DATABASE_URL: "postgresql://postgres:postgres@127.0.0.1:5432/criti-pixel?serverVersion=16&charset=utf8"
 
     steps:
     # 1) Checkout (obligatoire)
