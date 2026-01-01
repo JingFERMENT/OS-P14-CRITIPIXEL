@@ -13,21 +13,18 @@ final class LoginTest extends FunctionalTestCase
     {
         $this->get('/auth/login');
 
-        self::assertResponseIsSuccessful();
-        self::assertSelectorExists('form');
+        $this->client->submitForm('Se connecter', [
+            'email' => 'user+1@email.com',
+            'password' => 'password'
+        ]);
 
-        // $this->client->submitForm('Se connecter', [
-        //     'email' => 'user+1@email.com',
-        //     'password' => 'password'
-        // ]);
+        $authorizationChecker = $this->service(AuthorizationCheckerInterface::class);
 
-        // $authorizationChecker = $this->service(AuthorizationCheckerInterface::class);
+        self::assertTrue($authorizationChecker->isGranted('IS_AUTHENTICATED'));
 
-        // self::assertTrue($authorizationChecker->isGranted('IS_AUTHENTICATED'));
+        $this->get('/auth/logout');
 
-        // $this->get('/auth/logout');
-
-        // self::assertFalse($authorizationChecker->isGranted('IS_AUTHENTICATED'));
+        self::assertFalse($authorizationChecker->isGranted('IS_AUTHENTICATED'));
     }
 
     public function testThatLoginShouldFailed(): void
