@@ -21,11 +21,11 @@ final class RatingFixturesTest extends TestCase
 
         $countRatingsPerValue = $this->createMock(CountRatingsPerValue::class);
 
-        $calculateAverageRating->expects($this->once())
+        $calculateAverageRating->expects(self::once())
             ->method('calculateAverage')
             ->with($videoGame);
 
-        $countRatingsPerValue->expects($this->once())
+        $countRatingsPerValue->expects(self::once())
             ->method('countRatingsPerValue')
             ->with($videoGame);
 
@@ -35,7 +35,7 @@ final class RatingFixturesTest extends TestCase
         $manager = $this->createMock(ObjectManager::class);
 
         $manager->method('getRepository')->willReturn($respository);
-        $manager->expects($this->once())->method('flush');
+        $manager->expects(self::once())->method('flush');
 
         $fixture = new RatingFixtures(
         $calculateAverageRating,

@@ -10,6 +10,6 @@ final class UserTest extends TestCase{
 {
     $user = new User(); // or Tag, Rating, etc.
 
-    $this->assertNull($user->getId());
+    self::assertNull($user->getId());
 }
 }

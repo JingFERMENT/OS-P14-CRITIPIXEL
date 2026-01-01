@@ -1,0 +1,89 @@
+name: CI
+
+on: 
+  pull_request:
+  push:
+    branches: [ "main", "github-action" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ["8.4"]
+    
+    services:
+      postgres:
+        image:  postgres:16
+        env:
+          POSTGRES_DB:  criti-pixel_test
+          POSTGRES_USER:  postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d criti-pixel_test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+      
+    env:
+      APP_ENV: test
+      DATABASE_URL: "postgresql://postgres:postgres@127.0.0.1:5433/criti-pixel_test?serverVersion=16&charset=utf8"
+
+    steps:
+    # 1) Checkout (obligatoire)
+      - name: Checkout
+        uses: actions/checkout@v4
+    
+    # 2) Setup PHP 8.3 / 8.4
+      - name: Setup PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "${{ matrix.php }}"
+          tools: composer:v2
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_pgsql
+          coverage: none
+    
+    # Cache Composer
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with: 
+          path: |
+            ~/.cache/composer
+            ~/.composer/cache
+            vendor
+          key: composer-${{ runner.os }}-php${{ matrix.php }}-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            composer-${{ runner.os }}-php${{ matrix.php }}-
+            composer-${{ runner.os }}-
+    
+    # 3) Composer install
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+    
+    # 4) PHPStan (rapide, sans DB)
+      - name: Run PHPStan
+        run: vendor/bin/phpstan analyse -c phpstan.neon --memory-limit=-1
+    
+    # 5) Migrations Doctrine
+      - name: Prepare database (Doctrine)
+        run: |
+          php bin/console doctrine:database:create --if-not-exists --env=test
+          php bin/console doctrine:migrations:migrate -n --env=test
+          php bin/console doctrine:fixtures:load -n --purge-with-truncate --env=test
+    
+    # 6) Tests PHPUnit (unitaires + fonctionnels)
+      - name: PHPUnit
+        run: vendor/bin/phpunit -c phpunit.xml.dist
+    

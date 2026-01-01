@@ -14,12 +14,12 @@ final class TagFixturesTest extends TestCase
     {
         $manager = $this->createMock(ObjectManager::class);
         
-        $manager->expects($this->exactly(10))
+        $manager->expects(self::exactly(10))
         ->method('persist')
-        ->with($this->isInstanceOf(Tag::class));
+        ->with(self::isInstanceOf(Tag::class));
 
         $manager
-        ->expects($this->once())
+        ->expects(self::once())
         ->method('flush');
 
         $fixtures = new TagFixtures();

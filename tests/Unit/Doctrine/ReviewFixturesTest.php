@@ -21,9 +21,9 @@ class ReviewFixturesTest extends TestCase
 
         $videoGameRepository = $this->createMock(ObjectRepository::class);
 
-        $userRepository->expects($this->once())->method('findAll')->willReturn([$user]);
+        $userRepository->expects(self::once())->method('findAll')->willReturn([$user]);
 
-        $videoGameRepository->expects($this->once())->method('findAll')->willReturn([$videoGame]);
+        $videoGameRepository->expects(self::once())->method('findAll')->willReturn([$videoGame]);
 
         $manager = $this->createMock(objectManager::class);
 
@@ -32,19 +32,17 @@ class ReviewFixturesTest extends TestCase
             [VideoGame::class, $videoGameRepository]
         ]);
 
-        $manager->expects($this->exactly(5))
+        $manager->expects(self::exactly(5))
             ->method('persist')
-            ->with($this->isInstanceOf(Review::class));
+            ->with(self::isInstanceOf(Review::class));
 
-        $manager->expects($this->atLeastOnce())->method('flush');
+        $manager->expects(self::atLeastOnce())->method('flush');
         
         $faker = $this->createMock(Generator::class);
         
         $fixture = new ReviewFixtures($faker);
 
         $fixture->load($manager);
-
-        $this->assertTrue(true);
 
     }
 

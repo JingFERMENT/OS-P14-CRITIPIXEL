@@ -24,8 +24,7 @@ final class TagTest extends KernelTestCase{
         $this->em->persist($tag);
         $this->em->flush();
 
-        $this->assertIsString($tag->getCode());
-        $this->assertSame('action-game', $tag->getCode());
+        self::assertSame('action-game', $tag->getCode());
     }
 
 

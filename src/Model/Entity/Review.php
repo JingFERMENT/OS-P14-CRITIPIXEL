@@ -30,14 +30,10 @@ class Review
     #[JoinColumn(nullable: false)]
     private User $user;
 
-    /*#[Range(min: 1, max: 5)]
-    #[Column]
-    private int $rating;*/
-
     #[Assert\NotBlank]
     #[Assert\Range(min: 1, max: 5)]
     #[Column(nullable: false)]
-    private ?int $rating = null;
+    private int $rating;
 
     #[Assert\Length(max: 500)]
     #[Column(type: Types::TEXT, nullable: true)]

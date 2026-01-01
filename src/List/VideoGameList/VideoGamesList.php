@@ -23,7 +23,7 @@ use Traversable;
 final class VideoGamesList implements Countable, IteratorAggregate
 {
     private FormView $form;
-    
+
     private Filter $filter;
 
     /**
@@ -33,6 +33,9 @@ final class VideoGamesList implements Countable, IteratorAggregate
 
     private string $route;
 
+    /**
+     * @var array<string, scalar|null>
+     */
     private array $routeParameters;
 
     public function __construct(
@@ -40,15 +43,14 @@ final class VideoGamesList implements Countable, IteratorAggregate
         private FormFactoryInterface $formFactory,
         private VideoGameRepository $videoGameRepository,
         private Pagination  $pagination,
-    ) {
-    }
+    ) {}
 
     public function getForm(): FormView
     {
         return $this->form;
     }
 
-      public function handleRequest(Request $request): self
+    public function handleRequest(Request $request): self
     {
         $this->filter = new Filter();
 

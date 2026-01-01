@@ -19,7 +19,7 @@ class VideoGameTest extends TestCase
 
         $videoGame->setImageFile($file);
 
-        $this->assertSame($file, $videoGame->getImageFile());
+        self::assertSame($file, $videoGame->getImageFile());
 
     }
 
@@ -28,7 +28,7 @@ class VideoGameTest extends TestCase
         $videoGame = new VideoGame();
 
         $videoGame->setImageFile(null);
-        $this->assertNull($videoGame->getImageFile());
+        self::assertNull($videoGame->getImageFile());
     }
 
 
@@ -39,7 +39,7 @@ class VideoGameTest extends TestCase
         $property = $reflection->getProperty('imageSize');
         $property->setValue($videoGame, 2_098_872);
 
-        $this->assertSame(2_098_872, $videoGame->getImageSize());
+        self::assertSame(2_098_872, $videoGame->getImageSize());
     }
 
     
@@ -47,7 +47,7 @@ class VideoGameTest extends TestCase
     {
         $videoGame = new VideoGame(); // or Tag, Rating, etc.
 
-        $this->assertNull($videoGame->getId());
+        self::assertNull($videoGame->getId());
     }
 
     public function testSetTitleSetsValueAndReturnsSelf(): void
@@ -56,9 +56,9 @@ class VideoGameTest extends TestCase
 
         $result = $videoGame->setTitle('Jeu Vidéo 88');
 
-        $this->assertSame($videoGame, $result);
+        self::assertSame($videoGame, $result);
 
-        $this->assertSame('Jeu Vidéo 88', $videoGame->getTitle());
+        self::assertSame('Jeu Vidéo 88', $videoGame->getTitle());
     }
 
     public function testAddTagAddsTag(): void
@@ -68,14 +68,14 @@ class VideoGameTest extends TestCase
 
         $result = $videoGame->addTag($tag);
 
-        $this->assertSame($videoGame, $result);
+        self::assertSame($videoGame, $result);
 
-        $this->assertCount(1, $videoGame->getTags());
-        $this->assertTrue($videoGame->getTags()->contains($tag));
+        self::assertCount(1, $videoGame->getTags());
+        self::assertTrue($videoGame->getTags()->contains($tag));
 
         $videoGame->addTag($tag);
 
-        $this->assertCount(1, $videoGame->getTags());
+        self::assertCount(1, $videoGame->getTags());
     }
 
     public function testRemoveTagRemovesTag(): void
@@ -85,12 +85,12 @@ class VideoGameTest extends TestCase
 
         $videoGame->addTag($tag);
 
-        $this->assertCount(1, $videoGame->getTags());
+        self::assertCount(1, $videoGame->getTags());
         $result = $videoGame->removeTag($tag);
 
-        $this->assertSame($videoGame, $result);
+        self::assertSame($videoGame, $result);
 
-        $this->assertCount(0, $videoGame->getTags());
-        $this->assertFalse($videoGame->getTags()->contains($tag));
+        self::assertCount(0, $videoGame->getTags());
+        self::assertFalse($videoGame->getTags()->contains($tag));
     }
 }

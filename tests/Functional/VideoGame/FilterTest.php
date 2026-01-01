@@ -14,7 +14,23 @@ final class FilterTest extends FunctionalTestCase
 {
     // prepare the different scenarios for data provider:
 
-    private static function prepareUseCases( 
+    /**
+     * @param array<string, mixed> $query
+     * @param list<string>|null $expectedPaginationLinks
+     * @param list<string>|null $expectedVideoGames
+     *
+     * @return array{
+     *   query: array<string, mixed>,
+     *   expectedCount: int,
+     *   expectedOffsetFrom: int,
+     *   expectedOffsetTo: int,
+     *   expectedTotal: int,
+     *   expectedCurrentPageNumber: int|null,
+     *   expectedPaginationLinks: list<string>,
+     *   expectedVideoGames: list<string>
+     * }
+     */
+    private static function prepareUseCases(
         array $query = [],
         int $expectedCount = 10,
         int $expectedOffsetFrom = 1,
@@ -57,7 +73,20 @@ final class FilterTest extends FunctionalTestCase
     }
 
     // functional test for all (filter, sorting etc )
-    public static function providerUserCases(): iterable 
+
+    /**
+     * @return iterable<string, array{
+     *   query: array<string, mixed>,
+     *   expectedCount: int,
+     *   expectedOffsetFrom: int,
+     *   expectedOffsetTo: int,
+     *   expectedTotal: int,
+     *   expectedCurrentPageNumber: int|null,
+     *   expectedPaginationLinks: list<string>,
+     *   expectedVideoGames: list<string>
+     * }>
+     */
+    public static function providerUserCases(): iterable
     {
 
         yield 'First Default Page' => self::prepareUseCases();
@@ -490,7 +519,7 @@ final class FilterTest extends FunctionalTestCase
     {
         $review = new Review();
 
-        $this->assertNull($review->getId());
+        self::assertNull($review->getId());
     }
 
     public function testGetVideoGame(): void
@@ -500,8 +529,6 @@ final class FilterTest extends FunctionalTestCase
 
         $review->setVideoGame($videoGame);
 
-        $this->assertSame($videoGame, $review->getVideoGame());
+        self::assertSame($videoGame, $review->getVideoGame());
     }
-
-    
 }

@@ -9,11 +9,7 @@ final class FrenchGeneratorFactoryTest extends TestCase
     public function testCreateReturnsFakerGenerator(): void
     {
         $generator = FrenchGeneratorFactory::create();
-
-        $this->assertInstanceOf(Generator::class, $generator);
-
         $name = $generator->lastName();
-        $this->assertIsString($name);
-        $this->assertNotEmpty($name);
+        self::assertNotEmpty($name);
     }
 }
