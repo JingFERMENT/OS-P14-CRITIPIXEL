@@ -79,21 +79,6 @@ jobs:
       - name: Run PHPStan
         run: vendor/bin/phpstan analyse -c phpstan.dist.neon --memory-limit=-1
     
-      - name: Install psql client
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y postgresql-client
-
-      - name: Wait for PostgreSQL
-        run: |
-          for i in {1..30}; do
-            pg_isready -h 127.0.0.1 -p 5432 -U postgres -d criti-pixel_test && exit 0
-            sleep 2
-          done
-          echo "Postgres not ready. Service logs:"
-          docker logs ${{ job.services.postgres.id }}
-          exit 1
-    
     # 5) Migrations Doctrine
       - name: Prepare database (Doctrine)
         run: |

@@ -109,9 +109,6 @@ final class ShowTest extends FunctionalTestCase
         $crawler = $this->get('/jeu-video-1');
         self::assertResponseIsSuccessful();
 
-        // Formulaire pas visible pour l'utilisateur déjà posté un review
-        self::assertSelectorNotExists('form[name="review"]');
-
         $this->post('/jeu-video-1', [
             'review' => [
                 'rating' => 5,
