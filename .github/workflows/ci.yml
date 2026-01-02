@@ -82,7 +82,6 @@ jobs:
     # 5) Migrations Doctrine
       - name: Prepare database (Doctrine)
         run: |
-          php bin/console doctrine:database:create --env=test
           php bin/console doctrine:migrations:migrate -n --env=test
           php bin/console doctrine:fixtures:load -n --purge-with-truncate --env=test
     
