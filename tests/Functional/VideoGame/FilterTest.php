@@ -313,7 +313,7 @@ final class FilterTest extends FunctionalTestCase
     // unit test for filtering videogames 
     /**
      * @param string|null $search
-     * @param array $tags
+     * @param list<string> $tags
      * @param int $expectedCount
      * @param string|null $expectedFirstVideoGame
      * @param string|null $expectedLastVideoGame
@@ -381,72 +381,72 @@ final class FilterTest extends FunctionalTestCase
                 'expectedFirstVideoGame' => 'Jeu vidéo 12',
                 'expectedLastVideoGame' => 'Jeu vidéo 27'
             ],
-                [ // another tag
-                    'search' => '',
-                    'tags' => ['tag+0'],
-                    'expectedCount' => 2,
-                    'expectedFirstVideoGame' => 'Jeu vidéo 1',
-                    'expectedLastVideoGame' => 'Jeu vidéo 19'
-                ],
-                [ //several tags
-                    'search' => '',
-                    'tags' => ['tag+0', 'tag+9'],
-                    'expectedCount' => 1,
-                    'expectedFirstVideoGame' => 'Jeu vidéo 19',
-                    'expectedLastVideoGame' => 'Jeu vidéo 19',
-                ],
-                [ //'no tag' 
-                    'search' => '',
-                    'tags' => [],
-                    'expectedCount' => 10,
-                    'expectedFirstVideoGame' => 'Jeu vidéo 0',
-                    'expectedLastVideoGame' => 'Jeu vidéo 9'
-                ],
-                [ //'non existent tag'
-                    'search' => '',
-                    'tags' => ['tag+1'],
-                    'expectedCount' => 2,
-                    'expectedFirstVideoGame' => 'Jeu vidéo 2',
-                    'expectedLastVideoGame' => 'Jeu vidéo 3'
-                ],
+            [ // another tag
+                'search' => '',
+                'tags' => ['tag+0'],
+                'expectedCount' => 2,
+                'expectedFirstVideoGame' => 'Jeu vidéo 1',
+                'expectedLastVideoGame' => 'Jeu vidéo 19'
+            ],
+            [ //several tags
+                'search' => '',
+                'tags' => ['tag+0', 'tag+9'],
+                'expectedCount' => 1,
+                'expectedFirstVideoGame' => 'Jeu vidéo 19',
+                'expectedLastVideoGame' => 'Jeu vidéo 19',
+            ],
+            [ //'no tag' 
+                'search' => '',
+                'tags' => [],
+                'expectedCount' => 10,
+                'expectedFirstVideoGame' => 'Jeu vidéo 0',
+                'expectedLastVideoGame' => 'Jeu vidéo 9'
+            ],
+            [ //'non existent tag'
+                'search' => '',
+                'tags' => ['tag+1'],
+                'expectedCount' => 2,
+                'expectedFirstVideoGame' => 'Jeu vidéo 2',
+                'expectedLastVideoGame' => 'Jeu vidéo 3'
+            ],
 
-                // ------------------ SEARCH FILTERS --------------------
-                [ // Exact search Jing'
-                    'search' => 'Jing',
-                    'tags' => [],
-                    'expectedCount' => 2,
-                    'expectedFirstVideoGame' => 'Jeu vidéo 0',
-                    'expectedLastVideoGame' => 'Jeu vidéo 1'
-                ],
-                [ //'Case-insensitive search jing'
-                    'search' => 'jing',
-                    'tags' => [],
-                    'expectedCount' => 0,
-                    'expectedFirstVideoGame' => null,
-                    'expectedLastVideoGame' => null
-                ],
-                [ //'No result search' 
-                    'search' => 'hello',
-                    'tags' => [],
-                    'expectedCount' => 0,
-                    'expectedFirstVideoGame' => null,
-                    'expectedLastVideoGame' => null
-                ],
-                [ //'Empty Search returns all' 
-                    'search' => '',
-                    'tags' => [],
-                    'expectedCount' => 10,
-                    'expectedFirstVideoGame' => 'Jeu vidéo 0',
-                    'expectedLastVideoGame' => 'Jeu vidéo 9'
-                ],
-                // ------------------ SEARCH AND TAG FILTERS --------------------
-                [ //'Tag and Search filters' 
-                    'search' => 'Jing',
-                    'tags' => ['tag+0'],
-                    'expectedCount' => 1,
-                    'expectedFirstVideoGame' => 'Jeu vidéo 1',
-                    'expectedLastVideoGame' => null
-                ],
+            // ------------------ SEARCH FILTERS --------------------
+            [ // Exact search Jing'
+                'search' => 'Jing',
+                'tags' => [],
+                'expectedCount' => 2,
+                'expectedFirstVideoGame' => 'Jeu vidéo 0',
+                'expectedLastVideoGame' => 'Jeu vidéo 1'
+            ],
+            [ //'Case-insensitive search jing'
+                'search' => 'jing',
+                'tags' => [],
+                'expectedCount' => 0,
+                'expectedFirstVideoGame' => null,
+                'expectedLastVideoGame' => null
+            ],
+            [ //'No result search' 
+                'search' => 'hello',
+                'tags' => [],
+                'expectedCount' => 0,
+                'expectedFirstVideoGame' => null,
+                'expectedLastVideoGame' => null
+            ],
+            [ //'Empty Search returns all' 
+                'search' => '',
+                'tags' => [],
+                'expectedCount' => 10,
+                'expectedFirstVideoGame' => 'Jeu vidéo 0',
+                'expectedLastVideoGame' => 'Jeu vidéo 9'
+            ],
+            // ------------------ SEARCH AND TAG FILTERS --------------------
+            [ //'Tag and Search filters' 
+                'search' => 'Jing',
+                'tags' => ['tag+0'],
+                'expectedCount' => 1,
+                'expectedFirstVideoGame' => 'Jeu vidéo 1',
+                'expectedLastVideoGame' => null
+            ],
         ];
     }
 
@@ -537,6 +537,10 @@ final class FilterTest extends FunctionalTestCase
         self::assertSame($videoGame, $review->getVideoGame());
     }
 
+    /** 
+     * @param array<string, mixed> $query
+     * @return array<string, mixed>
+     **/
     private function switchTagNamesByIdInQuery(array $query): array
     {
         $rawTags = $query['filter']['tags'] ?? [];
@@ -567,13 +571,17 @@ final class FilterTest extends FunctionalTestCase
         return $query;
     }
 
+    /**
+     *@param list<string> $tagNames
+     *@return list<string>
+     **/
     private function resolveTagNamesToIds(array $tagNames): array
     {
         $repo = $this->getEntityManager()->getRepository(Tag::class);
 
         $ids = [];
         foreach ($tagNames as $name) {
-            
+
             $tag = $repo->findOneBy(['name' => $name]);
 
             self::assertNotNull($tag, sprintf('Tag introuvable pour le nom "%s"', $name));

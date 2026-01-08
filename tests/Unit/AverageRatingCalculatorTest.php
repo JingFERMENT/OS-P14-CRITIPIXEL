@@ -33,7 +33,7 @@ class AverageRatingCalculatorTest extends TestCase
     }
 
     /**
-     * @return array<string, array{int[], int|null}>
+     * @return array<string, array{int[], float|null}>
      */
     public static function provideRatings(): array
     {
