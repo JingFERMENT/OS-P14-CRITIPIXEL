@@ -239,12 +239,13 @@ final class FilterTest extends FunctionalTestCase
         // ------------------ TEST TAG AND SEARCH FILTERS --------------------
         yield 'First Page, filter by search and tag' => self::prepareUseCases(
             query: ['filter' => ['tags' => ['212'], 'search' => 'Jing']],
-            expectedCount: 1,
-            expectedOffsetTo: 1,
-            expectedTotal: 1,
+            expectedCount: 2,
+            expectedOffsetTo: 2,
+            expectedTotal: 2,
             expectedCurrentPageNumber: null,
             expectedVideoGames: [
                 'Jeu vidéo 0',
+                'Jeu vidéo 1',
             ],
             expectedPaginationLinks: []
         );
@@ -296,7 +297,7 @@ final class FilterTest extends FunctionalTestCase
             }
         }
 
-
+       
         // check the videogames titles
         foreach ($expectedVideoGames as $index => $expectedVideoGame) {
             $number = $index + 1;

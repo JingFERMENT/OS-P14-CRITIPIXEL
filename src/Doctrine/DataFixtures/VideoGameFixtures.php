@@ -14,18 +14,23 @@ use Faker\Factory;
 final class VideoGameFixtures extends Fixture implements DependentFixtureInterface
 {
     public function __construct(
-        private readonly Generator $faker 
+        private readonly Generator $faker
     ) {}
 
     public function load(ObjectManager $manager): void
     {
         $tags = $manager->getRepository(Tag::class)->findAll();
 
+        
         foreach (range(0, 49) as $index) {
-
+            $description = $this->faker->paragraphs(10, true);
+            // Put "Jing" only in the first 2 video games (index 0 and 1)
+            if ($index < 2) {
+                $description = "Jing - " . $description;
+            }
             $videoGame = (new VideoGame())
                 ->setTitle(sprintf('Jeu vidéo %d', $index))
-                ->setDescription($this->faker->paragraphs(10, true))
+                ->setDescription($description)
                 ->setReleaseDate(new DateTimeImmutable())
                 ->setTest($this->faker->paragraphs(6, true))
                 ->setRating(($index % 5) + 1)
@@ -38,6 +43,12 @@ final class VideoGameFixtures extends Fixture implements DependentFixtureInterfa
             foreach ($assignedTagsIndex as $oneAssignedTagIndex) {
                 $videoGame->addTag($tags[$oneAssignedTagIndex]);
             }
+
+            // foreach (self::FILTER_TAGS_BY_NAME as $tagName => $gameIndexes) {
+            // if (in_array($index, $gameIndexes, true)) {
+            //     $videoGame->addTag($tagsByName[$tagName]);
+            // }
+        // }
 
             $manager->persist($videoGame);
         }

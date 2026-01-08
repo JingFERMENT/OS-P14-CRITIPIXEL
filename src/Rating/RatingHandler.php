@@ -23,7 +23,7 @@ final readonly class RatingHandler implements CalculateAverageRating, CountRatin
             )
         );
 
-        $videoGame->setAverageRating((int) ceil($ratingsSum/ count($videoGame->getReviews())));
+        $videoGame->setAverageRating($ratingsSum/ count($videoGame->getReviews()));
     }
 
     public function countRatingsPerValue(VideoGame $videoGame): void

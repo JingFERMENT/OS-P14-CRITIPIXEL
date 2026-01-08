@@ -72,7 +72,7 @@ class VideoGame
     private ?int $rating = null;
 
     #[Column(nullable: true)]
-    private ?int $averageRating = null;
+    private ?float $averageRating = null;
 
     #[Embedded(class: NumberOfRatingPerValue::class, columnPrefix: '')]
     private NumberOfRatingPerValue $numberOfRatingsPerValue;
@@ -199,12 +199,12 @@ class VideoGame
         return $this;
     }
 
-    public function getAverageRating(): ?int
+    public function getAverageRating(): ?float
     {
         return $this->averageRating;
     }
 
-    public function setAverageRating(?int $averageRating): VideoGame
+    public function setAverageRating(?float $averageRating): VideoGame
     {
         $this->averageRating = $averageRating;
         return $this;
