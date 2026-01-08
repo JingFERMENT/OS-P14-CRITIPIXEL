@@ -21,9 +21,9 @@ class AverageRatingCalculatorTest extends TestCase
     #[DataProvider('provideRatings')] // @phpstan-ignore-line
     /**
      * @param int[] $ratings
-     * @param int|null $expectedAverage
+     * @param float|null $expectedAverage
      */
-    public function testCalculateAverageCanReturnCorrectAverage(array $ratings, ?int $expectedAverage): void
+    public function testCalculateAverageCanReturnCorrectAverage(array $ratings, ?float $expectedAverage): void
     {
         $videoGame = self::createVideoGame(...$ratings);
 
@@ -33,7 +33,7 @@ class AverageRatingCalculatorTest extends TestCase
     }
 
     /**
-     * @return array<string, array{int[], int|null}>
+     * @return array<string, array{int[], float|null}>
      */
     public static function provideRatings(): array
     {
@@ -41,9 +41,9 @@ class AverageRatingCalculatorTest extends TestCase
             'no review' => [[], null],
             'one review' => [[4], 4],
             'two reviews' => [[5, 1], 3],
-            'many reviews' => [[5, 1, 2, 5, 1], 3],
-            'many reviews round up' => [[5, 1, 2, 5, 4], 4],
-            'limit value' => [[0, 5], 3],
+            'many reviews' => [[5, 1, 2, 5, 1], 2.8],
+            'many reviews round up' => [[5, 1, 2, 5, 4], 3.4],
+            'limit value' => [[0, 5], 2.5],
         ];
     }
 

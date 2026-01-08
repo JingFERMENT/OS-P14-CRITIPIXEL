@@ -2,12 +2,9 @@
 
 namespace App\Doctrine\DataFixtures;
 
-use App\Model\Entity\Review;
 use App\Model\Entity\VideoGame;
 use App\Rating\CalculateAverageRating;
 use App\Rating\CountRatingsPerValue;
-use App\Rating\RatingHandler;
-use App\Security\Voter\VideoGameVoter;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
