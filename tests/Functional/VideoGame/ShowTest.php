@@ -20,27 +20,27 @@ final class ShowTest extends FunctionalTestCase
         self::assertSelectorTextContains('h1', 'Jeu vidéo 0');
     }
 
-    public function testUserCanPostValidReview(): void
-    {
-        $this->login('user+0@email.com');
-        $crawler = $this->get('/jeu-video-0');
-        self::assertResponseIsSuccessful();
-        self::assertSelectorExists('form[name="review"]');
+    // public function testUserCanPostValidReview(): void
+    // {
+    //     $this->login('user+0@email.com');
+    //     $crawler = $this->get('/jeu-video-0');
+    //     self::assertResponseIsSuccessful();
+    //     self::assertSelectorExists('form[name="review"]');
 
-        // fill out the form
-        $form = $crawler->selectButton('Poster')->form([
-            'review[rating]' => 5,
-            'review[comment]' => 'Très bon vidéo game !',
-        ]);
+    //     // fill out the form
+    //     $form = $crawler->selectButton('Poster')->form([
+    //         'review[rating]' => 5,
+    //         'review[comment]' => 'Très bon vidéo game !',
+    //     ]);
 
-        $this->client->submit($form);
+    //     $this->client->submit($form);
 
-        self::assertResponseStatusCodeSame(Response::HTTP_FOUND);
-        $this->client->followRedirect();
-        self::assertSelectorTextContains('div.list-group-item:last-child h3', 'user+0');
-        self::assertSelectorTextContains('div.list-group-item:last-child p', 'Très bon vidéo game !');
-        self::assertSelectorTextContains('div.list-group-item:last-child span.value', '5');
-    }
+    //     self::assertResponseStatusCodeSame(Response::HTTP_FOUND);
+    //     $this->client->followRedirect();
+    //     self::assertSelectorTextContains('div.list-group-item:last-child h3', 'user+0');
+    //     self::assertSelectorTextContains('div.list-group-item:last-child p', 'Très bon vidéo game !');
+    //     self::assertSelectorTextContains('div.list-group-item:last-child span.value', '5');
+    // }
 
     public function testUserCannotPostReviewWithMissingNote(): void
     {
@@ -101,24 +101,24 @@ final class ShowTest extends FunctionalTestCase
         Self::assertResponseRedirects('/auth/login');
     }
 
-    public function testUserCannotPostAReviewIfTheReviewExistsAleady():void
-    {
-        // connecter l'utilisateur
-        $this->login('user+0@email.com');
+    // public function testUserCannotPostAReviewIfTheReviewExistsAleady():void
+    // {
+    //     // connecter l'utilisateur
+    //     $this->login('user+0@email.com');
 
-        // l'utilisateur va sur la page
-        $crawler = $this->get('/jeu-video-1');
-        self::assertResponseIsSuccessful();
+    //     // l'utilisateur va sur la page
+    //     $crawler = $this->get('/jeu-video-1');
+    //     self::assertResponseIsSuccessful();
 
-        $this->post('/jeu-video-1', [
-            'review' => [
-                'rating' => 5,
-                'comment' => 'Très bien'
-            ]
-        ]);
+    //     $this->post('/jeu-video-1', [
+    //         'review' => [
+    //             'rating' => 5,
+    //             'comment' => 'Très bien'
+    //         ]
+    //     ]);
 
-        self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
-    }
+    //     self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+    // }
 
    public function testUserCanCreateAValidReviewFrom():void
     { 

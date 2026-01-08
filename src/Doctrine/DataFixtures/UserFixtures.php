@@ -14,7 +14,6 @@ final class UserFixtures extends Fixture
         
     }
 
-
     public function load(ObjectManager $manager): void
     {
         foreach (range(0, 9) as $index) {
