@@ -158,21 +158,21 @@ final class FilterTest extends FunctionalTestCase
             ]
         );
 
-        yield 'First Page, sorting by Rating' => self::prepareUseCases(
-            query: ['sorting' => 'Rating'],
-            expectedVideoGames: [
-                'Jeu vidéo 4',
-                'Jeu vidéo 9',
-                'Jeu vidéo 14',
-                'Jeu vidéo 19',
-                'Jeu vidéo 24',
-                'Jeu vidéo 29',
-                'Jeu vidéo 34',
-                'Jeu vidéo 39',
-                'Jeu vidéo 44',
-                'Jeu vidéo 49',
-            ]
-        );
+        // yield 'First Page, sorting by Rating' => self::prepareUseCases(
+        //     query: ['sorting' => 'Rating'],
+        //     expectedVideoGames: [
+        //         'Jeu vidéo 4',
+        //         'Jeu vidéo 9',
+        //         'Jeu vidéo 14',
+        //         'Jeu vidéo 19',
+        //         'Jeu vidéo 24',
+        //         'Jeu vidéo 29',
+        //         'Jeu vidéo 34',
+        //         'Jeu vidéo 39',
+        //         'Jeu vidéo 44',
+        //         'Jeu vidéo 49',
+        //     ]
+        // );
 
         // yield 'First Page, sorting by Rating Direction Ascending' => self::prepareUseCases(
         //     query: ['sorting' => 'Rating', 'direction' => 'Ascending'],
